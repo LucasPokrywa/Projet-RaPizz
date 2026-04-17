@@ -1,5 +1,5 @@
 
-INSERT INTO Clients (prenom_client, nom_client, adresse, telephone, solde_compte) 
+INSERT INTO Client (prenom_client, nom_client, adresse, telephone, solde_compte) 
 VALUES 
     ("Charles", "Henry", "4 rue Pompidou Paris 75014", "+33456585774", 48.75),
     ("Léa", "Martin", "12 avenue de la Gare Lyon 69002", "+33612345678", 1250.50),
