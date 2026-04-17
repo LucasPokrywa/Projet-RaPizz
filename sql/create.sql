@@ -1,6 +1,4 @@
-
-CREATE DATABASE RaPizz;
-
+CREATE DATABASE IF NOT EXISTS RaPizz;
 USE RaPizz;
 
 CREATE TABLE Client (
@@ -10,30 +8,30 @@ CREATE TABLE Client (
     adresse VARCHAR(200) NOT NULL,
     telephone VARCHAR(15) NOT NULL,
     solde_compte DECIMAL(8,2) NOT NULL       
-)
+);
 
 CREATE TABLE Livreur (
     id_livreur INT PRIMARY KEY AUTO_INCREMENT,
     nom_livreur VARCHAR(75) NOT NULL,
     prenom_livreur VARCHAR(75) NOT NULL
-)
+);
 
 CREATE TABLE Pizza (
     id_pizza INT PRIMARY KEY AUTO_INCREMENT,
     nom_pizza VARCHAR(40) NOT NULL,
     prix_base DECIMAL(5,2)
-)
+);
 
 CREATE TABLE Vehicule (
     id_vehicule INT PRIMARY KEY AUTO_INCREMENT,
     immatriculation VARCHAR(10) NOT NULL,
     type_vehicule VARCHAR(15) NOT NULL
-)
+);
 
 CREATE TABLE Ingredient (
     id_ingredient INT PRIMARY KEY AUTO_INCREMENT,
     nom_ingredient VARCHAR(30) NOT NULL
-)
+);
 
 CREATE TABLE Recette (
     id_pizza INT,
@@ -41,7 +39,7 @@ CREATE TABLE Recette (
     PRIMARY KEY (id_pizza, id_ingredient),
     FOREIGN KEY (id_pizza) REFERENCES Pizza(id_pizza),
     FOREIGN KEY (id_ingredient) REFERENCES Ingredient(id_ingredient)
-)
+);
 
 CREATE TABLE Vente (
     id_vente INT PRIMARY KEY AUTO_INCREMENT,
@@ -61,4 +59,4 @@ CREATE TABLE Vente (
     FOREIGN KEY (id_livreur) REFERENCES Livreur(id_livreur),
     FOREIGN KEY (id_pizza) REFERENCES Pizza(id_pizza),
     FOREIGN KEY (id_client) REFERENCES Client(id_client)
-)
+);  
