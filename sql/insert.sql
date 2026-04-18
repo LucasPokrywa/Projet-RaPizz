@@ -29,7 +29,7 @@ VALUES
 
 INSERT INTO Vehicule(immatriculation, type_vehicule)
 VALUES 
-    ("AS-784-DP", "Scooter"),
+    ("AS-784-DP", "Moto"),
     ("BO-081-ES", "Voiture");
 
 INSERT INTO Ingredient(nom_ingredient)

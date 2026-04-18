@@ -20,59 +20,55 @@ public class Vente {
 	public Vente() {
 	}
 
-	public int getIdVente() {
-		return idVente;
-	}
+	
+	public void effectuerCommande(Client client, Pizza pizza, String taille) {
+        this.client = client;
+        this.pizza = pizza;
+        this.taille = taille;
+        this.dateVente = new Date(System.currentTimeMillis());
+        this.heureCommande = new Time(System.currentTimeMillis());
+        
+        if(this.client.getSoldeCompte() - this.calculerPrixVente() < 0) {
+        	return;
+        }
+    }
+	
+	public double calculerPrixVente() {
+        if (offerteFidelite || offerteRetard) {
+            return 0.0; 
+        }
 
-	public void setIdVente(int idVente) {
-		this.idVente = idVente;
-	}
+        double prixBase = pizza.getPrixBase();
+        switch (taille.toLowerCase()) {
+            case "naine":
+                return prixBase * (2.0 / 3.0);  
+            case "ogresse":
+                return prixBase * (4.0 / 3.0);
+            case "humaine":
+            default:
+                return prixBase;
+        }
+    }
+	
+	public void enregistrerLivraison() {
+        
+        this.heureLivraison = new Time(System.currentTimeMillis());
+        
+        long difference = heureLivraison.getTime() - heureCommande.getTime();
+        long minutes = (difference / 1000) / 60;
 
-	public Date getDateVente() {
-		return dateVente;
-	}
+        if (minutes > 30) {
+            this.offerteRetard = true; 
+        }
+    }
+	
+	public int getIdVente() { return idVente; }
+    public void setIdVente(int idVente) { this.idVente = idVente; }
 
-	public void setDateVente(Date dateVente) {
-		this.dateVente = dateVente;
-	}
-
-	public Time getHeureCommande() {
-		return heureCommande;
-	}
-
-	public void setHeureCommande(Time heureCommande) {
-		this.heureCommande = heureCommande;
-	}
-
-	public String getTaille() {
-		return taille;
-	}
-
-	public void setTaille(String taille) {
-		this.taille = taille;
-	}
-
-	public Client getClient() {
-		return client;
-	}
-
-	public void setClient(Client client) {
-		this.client = client;
-	}
-
-	public Pizza getPizza() {
-		return pizza;
-	}
-
-	public void setPizza(Pizza pizza) {
-		this.pizza = pizza;
-	}
-
-	public Livreur getLivreur() {
-		return livreur;
-	}
-
-	public void setLivreur(Livreur livreur) {
-		this.livreur = livreur;
-	}
+    public boolean isOfferte() { return offerteFidelite || offerteRetard; }
+    
+    public Pizza getPizza() { return pizza; }
+    public Client getClient() { return client; }
+    public Livreur getLivreur() { return livreur; }
+    public Vehicule getVehicule() { return vehicule; }
 }

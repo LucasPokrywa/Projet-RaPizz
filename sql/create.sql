@@ -7,7 +7,8 @@ CREATE TABLE Client (
     prenom_client VARCHAR(75) NOT NULL,
     adresse VARCHAR(200) NOT NULL,
     telephone VARCHAR(15) NOT NULL,
-    solde_compte DECIMAL(8,2) NOT NULL       
+    solde_compte DECIMAL(8,2) NOT NULL,
+    pizza_commande INT DEFAULT 0
 );
 
 CREATE TABLE Livreur (
@@ -25,7 +26,7 @@ CREATE TABLE Pizza (
 CREATE TABLE Vehicule (
     id_vehicule INT PRIMARY KEY AUTO_INCREMENT,
     immatriculation VARCHAR(10) NOT NULL,
-    type_vehicule VARCHAR(15) NOT NULL
+    type_vehicule ENUM('voiture', 'moto') NOT NULL
 );
 
 CREATE TABLE Ingredient (

@@ -8,19 +8,21 @@ public class MainFrame extends JFrame {
     private static final long serialVersionUID = 1L;
 
     public MainFrame() {
-        setTitle("RaPizz - Gestion de Pizzéria");
-        setSize(800, 600);
+        setTitle("RaPizz - Gestion");
+        setSize(900, 700);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
-        setLayout(new BorderLayout());
 
-        JLabel title = new JLabel("RaPizz", JLabel.CENTER);
-        title.setFont(new Font("Arial", Font.BOLD, 24));
-        add(title, BorderLayout.NORTH);
+        JTabbedPane tabs = new JTabbedPane();
 
-        MenuPanel menu = new MenuPanel();
-        this.add(menu, BorderLayout.CENTER); 
+        tabs.addTab("Menu", new MenuPanel()); 
+        tabs.addTab("Commande", new CommandePannel()); 
+        tabs.addTab("Client", new ClientPannel());
+        tabs.addTab("Apprivoisement", new ApprivoisementPannel());
+        tabs.addTab("Overview", new OverviewPannel());
 
-        this.setVisible(true); 
+
+        add(tabs, BorderLayout.CENTER);
+        setVisible(true);
     }
 }

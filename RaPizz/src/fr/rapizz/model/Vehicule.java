@@ -15,8 +15,15 @@ public class Vehicule {
 
     public int getIdVehicule() { return idVehicule; }
     public void setIdVehicule(int idVehicule) { this.idVehicule = idVehicule; }
+
     public String getImmatriculation() { return immatriculation; }
     public void setImmatriculation(String immatriculation) { this.immatriculation = immatriculation; }
+
     public String getTypeVehicule() { return typeVehicule; }
     public void setTypeVehicule(String typeVehicule) { this.typeVehicule = typeVehicule; }
+
+    @Override
+    public String toString() {
+        return typeVehicule + " [" + immatriculation + "]";
+    }
 }
