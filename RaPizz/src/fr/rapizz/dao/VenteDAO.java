@@ -4,22 +4,13 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * DAO gérant la création d'une vente et la clôture (enregistrement livraison).
- */
+
 public class VenteDAO {
 
-    /**
-     * Crée une nouvelle vente en base.
-     * Attribue automatiquement un véhicule disponible.
-     * Vérifie le solde client et gère la fidélité (pizza offerte toutes les 10).
-     *
-     * @return l'id_vente inséré, ou -1 en cas d'échec.
-     */
     public int passerCommande(int idClient, int idLivreur, int idPizza,
                                String taille, double prixCalcule) {
 
-        // 1. Trouver un véhicule disponible
+        //  Trouver un véhicule disponible
         VehiculeDAO vehiculeDAO = new VehiculeDAO();
         fr.rapizz.model.Vehicule vehicule = vehiculeDAO.getVehiculeDisponible();
 
@@ -28,7 +19,7 @@ public class VenteDAO {
             return -1;
         }
 
-        // 2. Vérifier le solde (sauf si pizza offerte fidélité)
+        //  Vérifier le solde (sauf si pizza offerte fidélité)
         ClientDAO clientDAO = new ClientDAO();
         int nbPizzas = clientDAO.recupererNbPizzaCommandees(idClient);
         boolean offerteFidelite = (nbPizzas > 0 && nbPizzas % 10 == 0);
@@ -39,7 +30,7 @@ public class VenteDAO {
             return -1;
         }
 
-        // 3. Insérer la vente + débiter le solde dans une transaction
+        //  Insérer la vente + débiter le solde dans une transaction
         String sqlVente = """
             INSERT INTO Vente
                 (date_vente, heure_commande, heure_livraison,
@@ -92,18 +83,19 @@ public class VenteDAO {
         }
     }
 
-    /**
-     * Enregistre l'heure de livraison et applique la gratuité retard si > 30 min.
-     * Rembourse le client si la livraison est en retard.
-     *
-     * @return true si la mise à jour a réussi.
-     */
+
     public boolean enregistrerLivraison(int idVente) {
-        // Récupérer l'heure de commande et le montant pour éventuel remboursement
+
         String sqlSelect = """
-            SELECT v.heure_commande, v.date_vente, v.taille,
-                   v.offerte_fidelite, v.id_client,
-                   p.prix_base
+            SELECT v.taille,
+                   v.offerte_fidelite,
+                   v.id_client,
+                   p.prix_base,
+                   TIMESTAMPDIFF(
+                       MINUTE,
+                       CONCAT(v.date_vente, ' ', v.heure_commande),
+                       NOW()
+                   ) AS minutes_ecoulees
             FROM Vente v
             JOIN Pizza p ON v.id_pizza = p.id_pizza
             WHERE v.id_vente = ?
@@ -116,31 +108,27 @@ public class VenteDAO {
             WHERE id_vente = ?
         """;
 
-        String sqlRembourse = "UPDATE Client SET solde_compte = solde_compte + ? WHERE id_client = ?";
+        String sqlRembourse =
+            "UPDATE Client SET solde_compte = solde_compte + ? WHERE id_client = ?";
 
         try (Connection conn = DatabaseConnexion.getConnection()) {
             conn.setAutoCommit(false);
             try {
-                boolean retard = false;
-                double montantARemb = 0.0;
-                int idClient = 0;
+                boolean retard        = false;
+                double  montantARemb  = 0.0;
+                int     idClient      = 0;
 
                 try (PreparedStatement psSel = conn.prepareStatement(sqlSelect)) {
                     psSel.setInt(1, idVente);
                     ResultSet rs = psSel.executeQuery();
                     if (rs.next()) {
-                        // Calcul du délai en minutes depuis heure_commande
-                        Timestamp commande = rs.getTimestamp("heure_commande");
-                        long nowMs = System.currentTimeMillis();
-                        long commandeMs = commande.getTime();
-                        long diffMin = (nowMs - commandeMs) / 60000;
-
-                        retard = diffMin > 30;
+                        long minutesEcoulees = rs.getLong("minutes_ecoulees");
+                        retard   = minutesEcoulees > 30;
                         idClient = rs.getInt("id_client");
 
                         if (retard && !rs.getBoolean("offerte_fidelite")) {
                             double prixBase = rs.getDouble("prix_base");
-                            String taille = rs.getString("taille");
+                            String taille   = rs.getString("taille");
                             montantARemb = switch (taille) {
                                 case "naine"   -> prixBase * 2.0 / 3.0;
                                 case "ogresse" -> prixBase * 4.0 / 3.0;
@@ -177,10 +165,6 @@ public class VenteDAO {
         }
     }
 
-    /**
-     * Retourne les livraisons en cours (heure_livraison NULL).
-     * Colonnes : [Livreur, Véhicule, Client, Pizza, Taille, Heure commande]
-     */
     public List<String[]> getLivraisonsEnCours() {
         List<String[]> rows = new ArrayList<>();
         String sql = """
@@ -217,9 +201,7 @@ public class VenteDAO {
         return rows;
     }
 
-    /**
-     * Retourne les ids des ventes en cours (pour le bouton "Livré").
-     */
+
     public List<Integer> getIdsVentesEnCours() {
         List<Integer> ids = new ArrayList<>();
         String sql = "SELECT id_vente FROM Vente WHERE heure_livraison IS NULL ORDER BY heure_commande";
