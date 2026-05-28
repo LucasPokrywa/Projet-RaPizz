@@ -7,22 +7,22 @@ import java.util.List;
 
 public class ClientDAO {
     
-	public boolean creerClient(Client client) {
-	    String sql = "INSERT INTO Client (nom_client, prenom_client, adresse, telephone) VALUES (?, ?, ?, ?, ?, ?)";
-	    try (Connection conn = DatabaseConnexion.getConnection();
-	         PreparedStatement pstmt = conn.prepareStatement(sql)) {
-	        
-	        pstmt.setString(1, client.getNomClient());
-	        pstmt.setString(2, client.getPrenomClient());
-	        pstmt.setString(3, client.getAdresse());
-	        pstmt.setString(4, client.getTelephone());
-	        
-	        return pstmt.executeUpdate() > 0;
-	    } catch (SQLException e) {
-	        e.printStackTrace();
-	        return false;
-	    }
-	}
+    public boolean creerClient(Client client) {
+        String sql = "INSERT INTO Client (nom_client, prenom_client, adresse, solde_compte) VALUES (?, ?, ?, ?)";
+        try (Connection conn = DatabaseConnexion.getConnection();
+            PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, client.getNomClient());
+            pstmt.setString(2, client.getPrenomClient());
+            pstmt.setString(3, client.getAdresse());
+            pstmt.setDouble(4, client.getSoldeCompte());
+
+            return pstmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 	
     public double obtenirSolde(int idClient) {
         String sql = "SELECT solde_compte FROM Client WHERE id_client = ?";
