@@ -141,4 +141,30 @@ public class ClientDAO {
         } catch (SQLException e) { e.printStackTrace(); }
         return client;
     }
+    
+    public List<Client> getAllClients() {
+        List<Client> clients = new ArrayList<>();
+        String sql = "SELECT id_client, nom_client, prenom_client, adresse, telephone, solde_compte, pizza_commande FROM Client ORDER BY nom_client";
+
+        try (Connection conn = DatabaseConnexion.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+
+            while (rs.next()) {
+                Client c = new Client();
+                c.setIdClient(rs.getInt("id_client"));
+                c.setNomClient(rs.getString("nom_client"));
+                c.setPrenomClient(rs.getString("prenom_client"));
+                c.setAdresse(rs.getString("adresse"));
+                c.setTelephone(rs.getString("telephone"));
+                c.setSoldeCompte(rs.getDouble("solde_compte"));
+                c.setPizzaCommande(rs.getInt("pizza_commande"));
+                clients.add(c);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return clients;
+    }
+
 }
