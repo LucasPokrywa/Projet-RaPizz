@@ -12,7 +12,6 @@ public class StatistiqueDAO {
         String sql = """
             SELECT COALESCE(SUM(
                 CASE
-
                     WHEN v.offerte_fidelite = TRUE
                       OR v.offerte_retard = TRUE
                     THEN 0
@@ -25,7 +24,6 @@ public class StatistiqueDAO {
 
                     WHEN v.taille = 'ogresse'
                     THEN p.prix_base * 4 / 3
-
                 END
             ), 0) AS total
 
@@ -38,11 +36,9 @@ public class StatistiqueDAO {
             PreparedStatement ps = conn.prepareStatement(sql);
             ResultSet rs = ps.executeQuery()
         ) {
-
             if (rs.next()) {
                 return rs.getDouble("total");
             }
-
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -72,9 +68,7 @@ public class StatistiqueDAO {
             PreparedStatement ps = conn.prepareStatement(sql);
             ResultSet rs = ps.executeQuery()
         ) {
-
             if (rs.next()) {
-
                 return rs.getString("prenom_client")
                         + " "
                         + rs.getString("nom_client")
@@ -82,7 +76,6 @@ public class StatistiqueDAO {
                         + rs.getInt("total")
                         + " commandes)";
             }
-
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -118,9 +111,7 @@ public class StatistiqueDAO {
             PreparedStatement ps = conn.prepareStatement(sql);
             ResultSet rs = ps.executeQuery()
         ) {
-
             if (rs.next()) {
-
                 return rs.getString("prenom_livreur")
                         + " "
                         + rs.getString("nom_livreur")
@@ -128,7 +119,6 @@ public class StatistiqueDAO {
                         + rs.getInt("retards")
                         + " retards)";
             }
-
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -158,9 +148,7 @@ public class StatistiqueDAO {
             PreparedStatement ps = conn.prepareStatement(sql);
             ResultSet rs = ps.executeQuery()
         ) {
-
             if (rs.next()) {
-
                 return rs.getString("type_vehicule")
                         + " - "
                         + rs.getString("immatriculation")
@@ -168,7 +156,6 @@ public class StatistiqueDAO {
                         + rs.getInt("total")
                         + " utilisations)";
             }
-
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -197,15 +184,12 @@ public class StatistiqueDAO {
             PreparedStatement ps = conn.prepareStatement(sql);
             ResultSet rs = ps.executeQuery()
         ) {
-
             if (rs.next()) {
-
                 return rs.getString("nom_pizza")
                         + " ("
                         + rs.getInt("total")
                         + " commandes)";
             }
-
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -234,15 +218,12 @@ public class StatistiqueDAO {
             PreparedStatement ps = conn.prepareStatement(sql);
             ResultSet rs = ps.executeQuery()
         ) {
-
             if (rs.next()) {
-
                 return rs.getString("nom_pizza")
                         + " ("
                         + rs.getInt("total")
                         + " commandes)";
             }
-
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -279,19 +260,38 @@ public class StatistiqueDAO {
             PreparedStatement ps = conn.prepareStatement(sql);
             ResultSet rs = ps.executeQuery()
         ) {
-
             if (rs.next()) {
-
                 return rs.getString("nom_ingredient")
                         + " ("
                         + rs.getInt("total")
                         + " commandes)";
             }
-
         } catch (SQLException e) {
             e.printStackTrace();
         }
 
         return "Aucun";
+    }
+
+    public int nombreTotalVentes() {
+
+        String sql = """
+            SELECT COUNT(*) AS total
+            FROM Vente
+        """;
+
+        try (
+            Connection conn = DatabaseConnexion.getConnection();
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ResultSet rs = ps.executeQuery()
+        ) {
+            if (rs.next()) {
+                return rs.getInt("total");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return 0;
     }
 }
