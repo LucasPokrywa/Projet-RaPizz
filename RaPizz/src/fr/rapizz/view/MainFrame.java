@@ -15,12 +15,26 @@ public class MainFrame extends JFrame {
 
         JTabbedPane tabs = new JTabbedPane();
 
+        CommandePannel commandePanel = new CommandePannel();
+        ClientPannel clientPanel = new ClientPannel();
+        ApprovisionnementPanel approvisionnementPanel = new ApprovisionnementPanel();
+
         tabs.addTab("Menu", new MenuPanel()); 
-        tabs.addTab("Commande", new CommandePannel()); 
-        tabs.addTab("Client", new ClientPannel());
-        tabs.addTab("Apprivoisement", new ApprivoisementPannel());
+        tabs.addTab("Commande", commandePanel); 
+        tabs.addTab("Client", clientPanel);
+        tabs.addTab("Approvisionnement", approvisionnementPanel);
         tabs.addTab("Overview", new OverviewPannel());
 
+        tabs.addChangeListener(e -> {
+            Component selected = tabs.getSelectedComponent();
+            if (selected == commandePanel) {
+                commandePanel.rafraichirClients();
+            } else if (selected == clientPanel) {
+                clientPanel.rafraichirClients();
+            } else if (selected == approvisionnementPanel) {
+                approvisionnementPanel.rafraichirClients();
+            }
+        });
 
         add(tabs, BorderLayout.CENTER);
         setVisible(true);
