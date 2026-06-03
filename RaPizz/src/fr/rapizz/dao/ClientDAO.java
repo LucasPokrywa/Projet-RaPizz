@@ -7,22 +7,24 @@ import java.util.List;
 
 public class ClientDAO {
     
-    public boolean creerClient(Client client) {
-        String sql = "INSERT INTO Client (nom_client, prenom_client, adresse, solde_compte) VALUES (?, ?, ?, ?)";
-        try (Connection conn = DatabaseConnexion.getConnection();
-            PreparedStatement pstmt = conn.prepareStatement(sql)) {
-
-            pstmt.setString(1, client.getNomClient());
-            pstmt.setString(2, client.getPrenomClient());
-            pstmt.setString(3, client.getAdresse());
-            pstmt.setDouble(4, client.getSoldeCompte());
-
-            return pstmt.executeUpdate() > 0;
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
+	public boolean creerClient(Client client) {
+	    String sql = "INSERT INTO Client (nom_client, prenom_client, adresse, telephone, solde_compte, pizza_commande) VALUES (?, ?, ?, ?, ?, ?)";
+	    try (Connection conn = DatabaseConnexion.getConnection();
+	         PreparedStatement pstmt = conn.prepareStatement(sql)) {
+	        
+	        pstmt.setString(1, client.getNomClient());
+	        pstmt.setString(2, client.getPrenomClient());
+	        pstmt.setString(3, client.getAdresse());
+	        pstmt.setString(4, client.getTelephone());
+	        pstmt.setDouble(5, client.getSoldeCompte());
+	        pstmt.setInt(6, client.getPizzaCommande());
+	        
+	        return pstmt.executeUpdate() > 0;
+	    } catch (SQLException e) {
+	        e.printStackTrace();
+	        return false;
+	    }
+	}
 	
     public double obtenirSolde(int idClient) {
         String sql = "SELECT solde_compte FROM Client WHERE id_client = ?";
@@ -116,6 +118,28 @@ public class ClientDAO {
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, nouveauTel);
             pstmt.setInt(2, idClient);
+            return pstmt.executeUpdate() > 0;
+        } catch (SQLException e) { e.printStackTrace(); return false; }
+    }
+
+    public boolean modifierInfosClient(int idClient, String nom, String prenom, String adresse, String telephone) {
+        String sql = "UPDATE Client SET nom_client = ?, prenom_client = ?, adresse = ?, telephone = ? WHERE id_client = ?";
+        try (Connection conn = DatabaseConnexion.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, nom);
+            pstmt.setString(2, prenom);
+            pstmt.setString(3, adresse);
+            pstmt.setString(4, telephone);
+            pstmt.setInt(5, idClient);
+            return pstmt.executeUpdate() > 0;
+        } catch (SQLException e) { e.printStackTrace(); return false; }
+    }
+
+    public boolean supprimerClient(int idClient) {
+        String sql = "DELETE FROM Client WHERE id_client = ?";
+        try (Connection conn = DatabaseConnexion.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, idClient);
             return pstmt.executeUpdate() > 0;
         } catch (SQLException e) { e.printStackTrace(); return false; }
     }

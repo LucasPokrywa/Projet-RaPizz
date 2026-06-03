@@ -62,6 +62,7 @@ public class CommandePannel extends JPanel {
         // Rafraîchir les données à chaque changement d'onglet
         tabs.addChangeListener(e -> {
             int idx = tabs.getSelectedIndex();
+            if (idx == 0) rafraichirClients();
             if (idx == 1) rafraichirEnCours();
             if (idx == 2) rafraichirSuivi();
         });
@@ -152,12 +153,27 @@ public class CommandePannel extends JPanel {
         return panel;
     }
 
+    public void rafraichirClients() {
+        chargerDonneesCommande();
+    }
+
     private void chargerDonneesCommande() {
+        Integer idClientSelectionne = getIdClientSelectionne();
+
         // Clients
         listeClients = clientDAO.getAllClients();
         cbClients.removeAllItems();
-        for (Client c : listeClients)
+        int indexClientASelectionner = -1;
+        for (int i = 0; i < listeClients.size(); i++) {
+            Client c = listeClients.get(i);
             cbClients.addItem(c.getPrenomClient() + " " + c.getNomClient());
+            if (idClientSelectionne != null && c.getIdClient() == idClientSelectionne) {
+                indexClientASelectionner = i;
+            }
+        }
+        if (indexClientASelectionner >= 0) {
+            cbClients.setSelectedIndex(indexClientASelectionner);
+        }
 
         // Pizzas
         listePizzas = pizzaDAO.getMenu();
@@ -183,6 +199,14 @@ public class CommandePannel extends JPanel {
 
         mettreAJourSolde();
         mettreAJourPrix();
+    }
+
+    private Integer getIdClientSelectionne() {
+        int idx = cbClients == null ? -1 : cbClients.getSelectedIndex();
+        if (listeClients == null || idx < 0 || idx >= listeClients.size()) {
+            return null;
+        }
+        return listeClients.get(idx).getIdClient();
     }
 
     private void mettreAJourSolde() {
