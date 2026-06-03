@@ -28,434 +28,309 @@ public class ClientPannel extends JPanel {
 
     private static final long serialVersionUID = 1L;
 
-    private JTextField tfNom     = new JTextField(15);
-    private JTextField tfPrenom  = new JTextField(15);
-    private JTextField tfAdresse = new JTextField(20);
-    private JTextField tfSolde   = new JTextField(8);
-
-    private DefaultTableModel tableModel;
-    private ClientDAO clientDAO = new ClientDAO();
+    private final ClientDAO clientDAO = new ClientDAO();
+    private JTextField txtNom;
+    private JTextField txtPrenom;
+    private JTextField txtAdresse;
+    private JTextField txtTelephone;
+    private JSpinner spSolde;
+    private DefaultTableModel modelClients;
+    private JTable tableClients;
+    private JButton btnCreer;
+    private JButton btnModifier;
+    private JButton btnSupprimer;
+    private JButton btnNouveau;
+    private Integer idClientSelectionne;
+    private boolean rechargementTableau;
 
     ClientPannel() {
         setLayout(new BorderLayout(10, 10));
-        setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
 
-        // ----- Formulaire de création -----
-        JPanel formPanel = new JPanel(new GridBagLayout());
-        formPanel.setBorder(BorderFactory.createTitledBorder("Créer un nouveau client"));
+        add(buildFormulaire(), BorderLayout.NORTH);
+        add(buildTableau(), BorderLayout.CENTER);
+
+        chargerClients();
+    }
+
+    private JPanel buildFormulaire() {
+        JPanel panel = new JPanel(new GridBagLayout());
+        panel.setBorder(BorderFactory.createTitledBorder("Nouveau client"));
+
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(5, 5, 5, 5);
+        gbc.insets = new Insets(6, 6, 6, 6);
         gbc.anchor = GridBagConstraints.WEST;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
 
-        gbc.gridx = 0; gbc.gridy = 0;
-        formPanel.add(new JLabel("Nom :"), gbc);
-        gbc.gridx = 1;
-        formPanel.add(tfNom, gbc);
+        txtNom = new JTextField(20);
+        txtPrenom = new JTextField(20);
+        txtAdresse = new JTextField(35);
+        txtTelephone = new JTextField(15);
+        spSolde = new JSpinner(new SpinnerNumberModel(0.00, 0.00, 99999.99, 1.00));
 
-        gbc.gridx = 0; gbc.gridy = 1;
-        formPanel.add(new JLabel("Prénom :"), gbc);
-        gbc.gridx = 1;
-        formPanel.add(tfPrenom, gbc);
+        ajouterChamp(panel, gbc, 0, "Nom :", txtNom);
+        ajouterChamp(panel, gbc, 1, "Prenom :", txtPrenom);
+        ajouterChamp(panel, gbc, 2, "Adresse :", txtAdresse);
+        ajouterChamp(panel, gbc, 3, "Telephone :", txtTelephone);
+        ajouterChamp(panel, gbc, 4, "Solde initial :", spSolde);
 
-        gbc.gridx = 0; gbc.gridy = 2;
-        formPanel.add(new JLabel("Adresse :"), gbc);
-        gbc.gridx = 1;
-        formPanel.add(tfAdresse, gbc);
-
-        gbc.gridx = 0; gbc.gridy = 3;
-        formPanel.add(new JLabel("Solde initial (€) :"), gbc);
-        gbc.gridx = 1;
-        formPanel.add(tfSolde, gbc);
-
-        JButton btnCreer = new JButton("Créer le client");
-        gbc.gridx = 0; gbc.gridy = 4;
-        gbc.gridwidth = 2;
-        gbc.anchor = GridBagConstraints.CENTER;
-        formPanel.add(btnCreer, gbc);
-
-        // ----- Tableau des clients existants -----
-        String[] colonnes = {"ID", "Nom", "Prénom", "Adresse", "Solde (€)", "Pizzas commandées"};
-        tableModel = new DefaultTableModel(colonnes, 0) {
-            public boolean isCellEditable(int r, int c) { return false; }
-        };
-        JTable table = new JTable(tableModel);
-        JScrollPane scroll = new JScrollPane(table);
-        scroll.setBorder(BorderFactory.createTitledBorder("Clients enregistrés"));
-
-        add(formPanel, BorderLayout.NORTH);
-        add(scroll,    BorderLayout.CENTER);
-
-        // ----- Actions -----
+        btnCreer = new JButton("Creer le client");
+        btnCreer.setBackground(new Color(40, 167, 69));
+        btnCreer.setForeground(Color.WHITE);
+        btnCreer.setFocusPainted(false);
         btnCreer.addActionListener(e -> creerClient());
-        rafraichirTableau();
+
+        btnModifier = new JButton("Modifier");
+        btnModifier.setBackground(new Color(0, 123, 255));
+        btnModifier.setForeground(Color.WHITE);
+        btnModifier.setFocusPainted(false);
+        btnModifier.addActionListener(e -> modifierClient());
+
+        btnSupprimer = new JButton("Supprimer");
+        btnSupprimer.setBackground(new Color(220, 53, 69));
+        btnSupprimer.setForeground(Color.WHITE);
+        btnSupprimer.setFocusPainted(false);
+        btnSupprimer.addActionListener(e -> supprimerClient());
+
+        btnNouveau = new JButton("Nouveau");
+        btnNouveau.addActionListener(e -> viderFormulaire());
+
+        JPanel actions = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        actions.add(btnNouveau);
+        actions.add(btnCreer);
+        actions.add(btnModifier);
+        actions.add(btnSupprimer);
+
+        gbc.gridx = 0;
+        gbc.gridy = 5;
+        gbc.gridwidth = 2;
+        panel.add(actions, gbc);
+
+        mettreAJourModeFormulaire();
+        return panel;
+    }
+
+    private void ajouterChamp(JPanel panel, GridBagConstraints gbc, int row, String label, java.awt.Component champ) {
+        gbc.gridx = 0;
+        gbc.gridy = row;
+        gbc.gridwidth = 1;
+        gbc.weightx = 0;
+        panel.add(new JLabel(label), gbc);
+
+        gbc.gridx = 1;
+        gbc.weightx = 1;
+        panel.add(champ, gbc);
+    }
+
+    private JScrollPane buildTableau() {
+        String[] colonnes = {"ID", "Nom", "Prenom", "Adresse", "Telephone", "Solde", "Pizzas commandees"};
+        modelClients = new DefaultTableModel(colonnes, 0) {
+            private static final long serialVersionUID = 1L;
+
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
+
+        tableClients = new JTable(modelClients);
+        tableClients.setRowHeight(24);
+        tableClients.getTableHeader().setFont(tableClients.getTableHeader().getFont().deriveFont(Font.BOLD));
+        tableClients.getSelectionModel().addListSelectionListener(e -> {
+            if (!e.getValueIsAdjusting()) {
+                chargerClientSelectionneDansFormulaire();
+            }
+        });
+        return new JScrollPane(tableClients);
+    }
+
+    public void rafraichirClients() {
+        chargerClients(idClientSelectionne);
+    }
+
+    private void chargerClients() {
+        chargerClients(idClientSelectionne);
+    }
+
+    private void chargerClients(Integer idClientASelectionner) {
+        rechargementTableau = true;
+        modelClients.setRowCount(0);
+        List<Client> clients = clientDAO.getAllClients();
+        int ligneASelectionner = -1;
+
+        for (int i = 0; i < clients.size(); i++) {
+            Client client = clients.get(i);
+            modelClients.addRow(new Object[]{
+                client.getIdClient(),
+                client.getNomClient(),
+                client.getPrenomClient(),
+                client.getAdresse(),
+                client.getTelephone(),
+                String.format("%.2f EUR", client.getSoldeCompte()),
+                client.getPizzaCommande()
+            });
+            if (idClientASelectionner != null && client.getIdClient() == idClientASelectionner) {
+                ligneASelectionner = i;
+            }
+        }
+
+        if (ligneASelectionner >= 0) {
+            tableClients.setRowSelectionInterval(ligneASelectionner, ligneASelectionner);
+            idClientSelectionne = idClientASelectionner;
+        } else {
+            idClientSelectionne = null;
+            viderChamps();
+            mettreAJourModeFormulaire();
+        }
+        rechargementTableau = false;
+
+        if (ligneASelectionner >= 0) {
+            chargerClientSelectionneDansFormulaire();
+        }
     }
 
     private void creerClient() {
-        String nom      = tfNom.getText().trim();
-        String prenom   = tfPrenom.getText().trim();
-        String adresse  = tfAdresse.getText().trim();
-        String soldeStr = tfSolde.getText().trim();
+        String nom = txtNom.getText().trim();
+        String prenom = txtPrenom.getText().trim();
+        String adresse = txtAdresse.getText().trim();
+        String telephone = txtTelephone.getText().trim();
+        double solde = ((Number) spSolde.getValue()).doubleValue();
 
-        if (nom.isEmpty() || prenom.isEmpty() || adresse.isEmpty()) {
+        if (nom.isEmpty() || prenom.isEmpty() || adresse.isEmpty() || telephone.isEmpty()) {
             JOptionPane.showMessageDialog(this,
-                "Veuillez remplir le nom, prénom et adresse.",
-                "Champs manquants", JOptionPane.WARNING_MESSAGE);
+                "Veuillez renseigner le nom, le prenom, l'adresse et le telephone.",
+                "Champs obligatoires", JOptionPane.WARNING_MESSAGE);
             return;
-        }
-
-        double solde = 0.0;
-        if (!soldeStr.isEmpty()) {
-            try {
-                solde = Double.parseDouble(soldeStr.replace(",", "."));
-            } catch (NumberFormatException ex) {
-                JOptionPane.showMessageDialog(this,
-                    "Le solde doit être un nombre (ex: 10.50).",
-                    "Solde invalide", JOptionPane.WARNING_MESSAGE);
-                return;
-            }
         }
 
         Client client = new Client();
         client.setNomClient(nom);
         client.setPrenomClient(prenom);
         client.setAdresse(adresse);
+        client.setTelephone(telephone);
         client.setSoldeCompte(solde);
+        client.setPizzaCommande(0);
 
         boolean ok = clientDAO.creerClient(client);
         if (ok) {
             JOptionPane.showMessageDialog(this,
-                "Client créé avec succès !",
-                "Succès", JOptionPane.INFORMATION_MESSAGE);
-            tfNom.setText("");
-            tfPrenom.setText("");
-            tfAdresse.setText("");
-            tfSolde.setText("");
-            rafraichirTableau();
+                "Client cree avec succes.",
+                "Creation effectuee", JOptionPane.INFORMATION_MESSAGE);
+            viderFormulaire();
+            chargerClients();
         } else {
             JOptionPane.showMessageDialog(this,
-                "Erreur lors de la création du client.",
+                "Erreur lors de la creation du client.",
                 "Erreur", JOptionPane.ERROR_MESSAGE);
         }
     }
 
-    private void rafraichirTableau() {
-        tableModel.setRowCount(0);
-        List<Client> clients = clientDAO.getAllClients();
-        for (Client c : clients) {
-            tableModel.addRow(new Object[]{
-                c.getIdClient(),
-                c.getNomClient(),
-                c.getPrenomClient(),
-                c.getAdresse(),
-                String.format("%.2f", c.getSoldeCompte()),
-                c.getPizzaCommande()
-            });
+    private void viderFormulaire() {
+        idClientSelectionne = null;
+        if (tableClients != null) {
+            tableClients.clearSelection();
+        }
+        viderChamps();
+        mettreAJourModeFormulaire();
+    }
+
+    private void viderChamps() {
+        txtNom.setText("");
+        txtPrenom.setText("");
+        txtAdresse.setText("");
+        txtTelephone.setText("");
+        spSolde.setValue(0.00);
+    }
+
+    private void chargerClientSelectionneDansFormulaire() {
+        if (rechargementTableau) {
+            return;
+        }
+
+        int ligne = tableClients.getSelectedRow();
+        if (ligne < 0) {
+            idClientSelectionne = null;
+            mettreAJourModeFormulaire();
+            return;
+        }
+
+        int modelRow = tableClients.convertRowIndexToModel(ligne);
+        idClientSelectionne = (Integer) modelClients.getValueAt(modelRow, 0);
+        txtNom.setText((String) modelClients.getValueAt(modelRow, 1));
+        txtPrenom.setText((String) modelClients.getValueAt(modelRow, 2));
+        txtAdresse.setText((String) modelClients.getValueAt(modelRow, 3));
+        txtTelephone.setText((String) modelClients.getValueAt(modelRow, 4));
+        mettreAJourModeFormulaire();
+    }
+
+    private void mettreAJourModeFormulaire() {
+        boolean edition = idClientSelectionne != null;
+        if (btnCreer != null) btnCreer.setEnabled(!edition);
+        if (btnModifier != null) btnModifier.setEnabled(edition);
+        if (btnSupprimer != null) btnSupprimer.setEnabled(edition);
+        if (btnNouveau != null) btnNouveau.setEnabled(edition);
+        if (spSolde != null) spSolde.setEnabled(!edition);
+    }
+
+    private void modifierClient() {
+        if (idClientSelectionne == null) {
+            JOptionPane.showMessageDialog(this,
+                "Selectionnez un client dans le tableau.",
+                "Aucun client", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        String nom = txtNom.getText().trim();
+        String prenom = txtPrenom.getText().trim();
+        String adresse = txtAdresse.getText().trim();
+        String telephone = txtTelephone.getText().trim();
+
+        if (nom.isEmpty() || prenom.isEmpty() || adresse.isEmpty() || telephone.isEmpty()) {
+            JOptionPane.showMessageDialog(this,
+                "Veuillez renseigner le nom, le prenom, l'adresse et le telephone.",
+                "Champs obligatoires", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        boolean ok = clientDAO.modifierInfosClient(idClientSelectionne, nom, prenom, adresse, telephone);
+        if (ok) {
+            JOptionPane.showMessageDialog(this,
+                "Client modifie avec succes.",
+                "Modification effectuee", JOptionPane.INFORMATION_MESSAGE);
+            chargerClients(idClientSelectionne);
+        } else {
+            JOptionPane.showMessageDialog(this,
+                "Erreur lors de la modification du client.",
+                "Erreur", JOptionPane.ERROR_MESSAGE);
         }
     }
-}
-	private final ClientDAO clientDAO = new ClientDAO();
-	private JTextField txtNom;
-	private JTextField txtPrenom;
-	private JTextField txtAdresse;
-	private JTextField txtTelephone;
-	private JSpinner spSolde;
-	private DefaultTableModel modelClients;
-	private JTable tableClients;
-	private JButton btnCreer;
-	private JButton btnModifier;
-	private JButton btnSupprimer;
-	private JButton btnNouveau;
-	private Integer idClientSelectionne;
-	private boolean rechargementTableau;
 
-	ClientPannel(){
-		setLayout(new BorderLayout(10, 10));
-		setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
+    private void supprimerClient() {
+        if (idClientSelectionne == null) {
+            JOptionPane.showMessageDialog(this,
+                "Selectionnez un client dans le tableau.",
+                "Aucun client", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
 
-		add(buildFormulaire(), BorderLayout.NORTH);
-		add(buildTableau(), BorderLayout.CENTER);
+        String nomComplet = txtPrenom.getText().trim() + " " + txtNom.getText().trim();
+        int reponse = JOptionPane.showConfirmDialog(this,
+            "Supprimer le client " + nomComplet + " ?",
+            "Confirmation suppression", JOptionPane.YES_NO_OPTION);
+        if (reponse != JOptionPane.YES_OPTION) {
+            return;
+        }
 
-		chargerClients();
-	}
-
-	private JPanel buildFormulaire() {
-		JPanel panel = new JPanel(new GridBagLayout());
-		panel.setBorder(BorderFactory.createTitledBorder("Nouveau client"));
-
-		GridBagConstraints gbc = new GridBagConstraints();
-		gbc.insets = new Insets(6, 6, 6, 6);
-		gbc.anchor = GridBagConstraints.WEST;
-		gbc.fill = GridBagConstraints.HORIZONTAL;
-
-		txtNom = new JTextField(20);
-		txtPrenom = new JTextField(20);
-		txtAdresse = new JTextField(35);
-		txtTelephone = new JTextField(15);
-		spSolde = new JSpinner(new SpinnerNumberModel(0.00, 0.00, 99999.99, 1.00));
-
-		ajouterChamp(panel, gbc, 0, "Nom :", txtNom);
-		ajouterChamp(panel, gbc, 1, "Prenom :", txtPrenom);
-		ajouterChamp(panel, gbc, 2, "Adresse :", txtAdresse);
-		ajouterChamp(panel, gbc, 3, "Telephone :", txtTelephone);
-		ajouterChamp(panel, gbc, 4, "Solde initial :", spSolde);
-
-		btnCreer = new JButton("Creer le client");
-		btnCreer.setBackground(new Color(40, 167, 69));
-		btnCreer.setForeground(Color.WHITE);
-		btnCreer.setFocusPainted(false);
-		btnCreer.addActionListener(e -> creerClient());
-
-		btnModifier = new JButton("Modifier");
-		btnModifier.setBackground(new Color(0, 123, 255));
-		btnModifier.setForeground(Color.WHITE);
-		btnModifier.setFocusPainted(false);
-		btnModifier.addActionListener(e -> modifierClient());
-
-		btnSupprimer = new JButton("Supprimer");
-		btnSupprimer.setBackground(new Color(220, 53, 69));
-		btnSupprimer.setForeground(Color.WHITE);
-		btnSupprimer.setFocusPainted(false);
-		btnSupprimer.addActionListener(e -> supprimerClient());
-
-		btnNouveau = new JButton("Nouveau");
-		btnNouveau.addActionListener(e -> viderFormulaire());
-
-		JPanel actions = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-		actions.add(btnNouveau);
-		actions.add(btnCreer);
-		actions.add(btnModifier);
-		actions.add(btnSupprimer);
-
-		gbc.gridx = 0;
-		gbc.gridy = 5;
-		gbc.gridwidth = 2;
-		panel.add(actions, gbc);
-
-		mettreAJourModeFormulaire();
-		return panel;
-	}
-
-	private void ajouterChamp(JPanel panel, GridBagConstraints gbc, int row, String label, java.awt.Component champ) {
-		gbc.gridx = 0;
-		gbc.gridy = row;
-		gbc.gridwidth = 1;
-		gbc.weightx = 0;
-		panel.add(new JLabel(label), gbc);
-
-		gbc.gridx = 1;
-		gbc.weightx = 1;
-		panel.add(champ, gbc);
-	}
-
-	private JScrollPane buildTableau() {
-		String[] colonnes = {"ID", "Nom", "Prenom", "Adresse", "Telephone", "Solde", "Pizzas commandees"};
-		modelClients = new DefaultTableModel(colonnes, 0) {
-			private static final long serialVersionUID = 1L;
-
-			public boolean isCellEditable(int row, int column) {
-				return false;
-			}
-		};
-
-		tableClients = new JTable(modelClients);
-		tableClients.setRowHeight(24);
-		tableClients.getTableHeader().setFont(tableClients.getTableHeader().getFont().deriveFont(Font.BOLD));
-		tableClients.getSelectionModel().addListSelectionListener(e -> {
-			if (!e.getValueIsAdjusting()) {
-				chargerClientSelectionneDansFormulaire();
-			}
-		});
-		return new JScrollPane(tableClients);
-	}
-
-	public void rafraichirClients() {
-		chargerClients(idClientSelectionne);
-	}
-
-	private void chargerClients() {
-		chargerClients(idClientSelectionne);
-	}
-
-	private void chargerClients(Integer idClientASelectionner) {
-		rechargementTableau = true;
-		modelClients.setRowCount(0);
-		List<Client> clients = clientDAO.getAllClients();
-		int ligneASelectionner = -1;
-
-		for (int i = 0; i < clients.size(); i++) {
-			Client client = clients.get(i);
-			modelClients.addRow(new Object[] {
-					client.getIdClient(),
-					client.getNomClient(),
-					client.getPrenomClient(),
-					client.getAdresse(),
-					client.getTelephone(),
-					String.format("%.2f EUR", client.getSoldeCompte()),
-					client.getPizzaCommande()
-			});
-			if (idClientASelectionner != null && client.getIdClient() == idClientASelectionner) {
-				ligneASelectionner = i;
-			}
-		}
-
-		if (ligneASelectionner >= 0) {
-			tableClients.setRowSelectionInterval(ligneASelectionner, ligneASelectionner);
-			idClientSelectionne = idClientASelectionner;
-		} else {
-			idClientSelectionne = null;
-			viderChamps();
-			mettreAJourModeFormulaire();
-		}
-		rechargementTableau = false;
-
-		if (ligneASelectionner >= 0) {
-			chargerClientSelectionneDansFormulaire();
-		}
-	}
-
-	private void creerClient() {
-		String nom = txtNom.getText().trim();
-		String prenom = txtPrenom.getText().trim();
-		String adresse = txtAdresse.getText().trim();
-		String telephone = txtTelephone.getText().trim();
-		double solde = ((Number) spSolde.getValue()).doubleValue();
-
-		if (nom.isEmpty() || prenom.isEmpty() || adresse.isEmpty() || telephone.isEmpty()) {
-			JOptionPane.showMessageDialog(this,
-					"Veuillez renseigner le nom, le prenom, l'adresse et le telephone.",
-					"Champs obligatoires", JOptionPane.WARNING_MESSAGE);
-			return;
-		}
-
-		Client client = new Client();
-		client.setNomClient(nom);
-		client.setPrenomClient(prenom);
-		client.setAdresse(adresse);
-		client.setTelephone(telephone);
-		client.setSoldeCompte(solde);
-		client.setPizzaCommande(0);
-
-		boolean ok = clientDAO.creerClient(client);
-		if (ok) {
-			JOptionPane.showMessageDialog(this,
-					"Client cree avec succes.",
-					"Creation effectuee", JOptionPane.INFORMATION_MESSAGE);
-			viderFormulaire();
-			chargerClients();
-		} else {
-			JOptionPane.showMessageDialog(this,
-					"Erreur lors de la creation du client.",
-					"Erreur", JOptionPane.ERROR_MESSAGE);
-		}
-	}
-
-	private void viderFormulaire() {
-		idClientSelectionne = null;
-		if (tableClients != null) {
-			tableClients.clearSelection();
-		}
-		viderChamps();
-		mettreAJourModeFormulaire();
-	}
-
-	private void viderChamps() {
-		txtNom.setText("");
-		txtPrenom.setText("");
-		txtAdresse.setText("");
-		txtTelephone.setText("");
-		spSolde.setValue(0.00);
-	}
-
-	private void chargerClientSelectionneDansFormulaire() {
-		if (rechargementTableau) {
-			return;
-		}
-
-		int ligne = tableClients.getSelectedRow();
-		if (ligne < 0) {
-			idClientSelectionne = null;
-			mettreAJourModeFormulaire();
-			return;
-		}
-
-		int modelRow = tableClients.convertRowIndexToModel(ligne);
-		idClientSelectionne = (Integer) modelClients.getValueAt(modelRow, 0);
-		txtNom.setText((String) modelClients.getValueAt(modelRow, 1));
-		txtPrenom.setText((String) modelClients.getValueAt(modelRow, 2));
-		txtAdresse.setText((String) modelClients.getValueAt(modelRow, 3));
-		txtTelephone.setText((String) modelClients.getValueAt(modelRow, 4));
-		mettreAJourModeFormulaire();
-	}
-
-	private void mettreAJourModeFormulaire() {
-		boolean edition = idClientSelectionne != null;
-		if (btnCreer != null) btnCreer.setEnabled(!edition);
-		if (btnModifier != null) btnModifier.setEnabled(edition);
-		if (btnSupprimer != null) btnSupprimer.setEnabled(edition);
-		if (btnNouveau != null) btnNouveau.setEnabled(edition);
-		if (spSolde != null) spSolde.setEnabled(!edition);
-	}
-
-	private void modifierClient() {
-		if (idClientSelectionne == null) {
-			JOptionPane.showMessageDialog(this,
-					"Selectionnez un client dans le tableau.",
-					"Aucun client", JOptionPane.WARNING_MESSAGE);
-			return;
-		}
-
-		String nom = txtNom.getText().trim();
-		String prenom = txtPrenom.getText().trim();
-		String adresse = txtAdresse.getText().trim();
-		String telephone = txtTelephone.getText().trim();
-
-		if (nom.isEmpty() || prenom.isEmpty() || adresse.isEmpty() || telephone.isEmpty()) {
-			JOptionPane.showMessageDialog(this,
-					"Veuillez renseigner le nom, le prenom, l'adresse et le telephone.",
-					"Champs obligatoires", JOptionPane.WARNING_MESSAGE);
-			return;
-		}
-
-		boolean ok = clientDAO.modifierInfosClient(idClientSelectionne, nom, prenom, adresse, telephone);
-		if (ok) {
-			JOptionPane.showMessageDialog(this,
-					"Client modifie avec succes.",
-					"Modification effectuee", JOptionPane.INFORMATION_MESSAGE);
-			chargerClients(idClientSelectionne);
-		} else {
-			JOptionPane.showMessageDialog(this,
-					"Erreur lors de la modification du client.",
-					"Erreur", JOptionPane.ERROR_MESSAGE);
-		}
-	}
-
-	private void supprimerClient() {
-		if (idClientSelectionne == null) {
-			JOptionPane.showMessageDialog(this,
-					"Selectionnez un client dans le tableau.",
-					"Aucun client", JOptionPane.WARNING_MESSAGE);
-			return;
-		}
-
-		String nomComplet = txtPrenom.getText().trim() + " " + txtNom.getText().trim();
-		int reponse = JOptionPane.showConfirmDialog(this,
-				"Supprimer le client " + nomComplet + " ?",
-				"Confirmation suppression", JOptionPane.YES_NO_OPTION);
-		if (reponse != JOptionPane.YES_OPTION) {
-			return;
-		}
-
-		boolean ok = clientDAO.supprimerClient(idClientSelectionne);
-		if (ok) {
-			JOptionPane.showMessageDialog(this,
-					"Client supprime avec succes.",
-					"Suppression effectuee", JOptionPane.INFORMATION_MESSAGE);
-			viderFormulaire();
-			chargerClients(null);
-		} else {
-			JOptionPane.showMessageDialog(this,
-					"Impossible de supprimer ce client car il est associé à une ou plusieurs ventes enregistrées.",
-					"Suppression impossible", JOptionPane.ERROR_MESSAGE);
-		}
-	}
+        boolean ok = clientDAO.supprimerClient(idClientSelectionne);
+        if (ok) {
+            JOptionPane.showMessageDialog(this,
+                "Client supprime avec succes.",
+                "Suppression effectuee", JOptionPane.INFORMATION_MESSAGE);
+            viderFormulaire();
+            chargerClients(null);
+        } else {
+            JOptionPane.showMessageDialog(this,
+                "Impossible de supprimer ce client car il est associe a une ou plusieurs ventes enregistrees.",
+                "Suppression impossible", JOptionPane.ERROR_MESSAGE);
+        }
+    }
 }

@@ -1,0 +1,20 @@
+Cahier des charges:
+
+Mode distribution: Attribution d'un véhicule non utilisé a livreur lors de la commande::, lors d'une commande. Suivi activité livreur et des véhicules
+
+La vente: Doit etre abonné au service (avoir deja un compte en bdd). Le compte doit etre approvisionner en amont. 
+On verifie la solde avant de prép et livrer. 
+On débite seulement a la livraison, car deux choix s'impose:
+- Pizza gratuite si le client a acheté 10 pizza (si c'est le cas ne pas incrementé son compteur)
+- Pizza gratuite si temps livraison > 30 min.
+Si elle est gratuite ne pas incrementé compteur du client.
+
+L'overview:
+Suivi chiffre d'affaire. Identification du meilleur client. 
+Identification du plus mauvais livreur (nombre de retard dans la livraison)
+Identification du véhicule le plus utilisé
+Identification de la pizza la plus et la moins demandée
+Identification de l'ingrédient
+
+
+
