@@ -48,7 +48,8 @@ VALUES
     ("AS-784-DP", "Moto"),
     ("BO-081-ES", "Voiture"),
     ("CK-452-LT", "Moto"),
-    ("DZ-219-MR", "Vélo électrique");
+    ("CA-217-JK", "Moto"),
+    ("RD-852-TL", "Moto");
 
 INSERT INTO Ingredient(nom_ingredient)
 VALUES 
