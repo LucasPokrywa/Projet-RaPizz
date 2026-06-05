@@ -1,4 +1,3 @@
-
 INSERT INTO Client (prenom_client, nom_client, adresse, telephone, solde_compte) 
 VALUES 
     ("Charles", "Henry", "4 rue Pompidou Paris 75014", "+33456585774", 48.75),
@@ -11,26 +10,45 @@ VALUES
     ("Manon", "Dubois", "17 rue Saint-Michel Toulouse 31000", "+33678901234", 890.40),
     ("Nathan", "Moreau", "5 place Bellecour Lyon 69002", "+33689012345", 12.00),
     ("Jade", "Simon", "9 avenue de Verdun Nice 06000", "+33690123456", 210.95),
-    ("Arthur", "Dupont", "66 rue de Bretagne Nantes 44000", "+33601234567", 5500.00);
+    ("Arthur", "Dupont", "66 rue de Bretagne Nantes 44000", "+33601234567", 5500.00),
+    ("Camille", "Lefebvre", "14 rue des Capucins Bordeaux 33000", "+33611223344", 320.00),
+    ("Inès", "Garcia", "2 rue Pasteur Strasbourg 67000", "+33622334455", 85.60),
+    ("Baptiste", "Martinez", "37 avenue Jean Jaurès Paris 75019", "+33633445566", 0.00),
+    ("Zoé", "Leroy", "51 rue du Faubourg Saint-Antoine Paris 75011", "+33644556677", 760.30),
+    ("Maxime", "Roux", "8 impasse des Roses Montpellier 34000", "+33655667788", 130.00),
+    ("Pauline", "David", "23 chemin du Moulin Grenoble 38000", "+33666778899", 2450.00),
+    ("Romain", "Bertrand", "6 rue de la Croix Paris 75018", "+33677889900", 50.00),
+    ("Sarah", "Morel", "19 boulevard Victor Hugo Nice 06100", "+33688990011", 980.75),
+    ("Kevin", "Fournier", "4 passage de la Bonne Graine Paris 75011", "+33699001122", 15.50);
 
 INSERT INTO Livreur (prenom_livreur, nom_livreur) 
 VALUES
     ("Abdel", "Henry"),
     ("Matteo", "Renoir"),
     ("Brad", "Pitt"),
-    ("Quentin", "Dupieux");
+    ("Quentin", "Dupieux"),
+    ("Sofia", "Amrani"),
+    ("Dylan", "Collet");
 
 INSERT INTO Pizza (nom_pizza, prix_base) 
 VALUES 
     ("Reine", 12.80),
     ("Quatre fromages", 13.80),
     ("Cannibale", 15.20),
-    ("Pistachio", 16.75);
+    ("Pistachio", 16.75),
+    ("Margherita", 11.50),
+    ("Végétarienne", 13.00),
+    ("Orientale", 14.50),
+    ("Montagnarde", 15.90),
+    ("Fruits de mer", 17.50),
+    ("Calzone", 14.00);
 
 INSERT INTO Vehicule(immatriculation, type_vehicule)
 VALUES 
     ("AS-784-DP", "Moto"),
-    ("BO-081-ES", "Voiture");
+    ("BO-081-ES", "Voiture"),
+    ("CK-452-LT", "Moto"),
+    ("DZ-219-MR", "Vélo électrique");
 
 INSERT INTO Ingredient(nom_ingredient)
 VALUES 
@@ -38,22 +56,166 @@ VALUES
     ("jambon"),
     ("fromage"),
     ("olive"),
-    ("pate");
+    ("pate"),
+    ("champignon"),
+    ("poivron"),
+    ("oignon"),
+    ("mozzarella"),
+    ("gorgonzola"),
+    ("emmental"),
+    ("chèvre"),
+    ("merguez"),
+    ("harissa"),
+    ("poulet"),
+    ("crème fraîche"),
+    ("lardons"),
+    ("reblochon"),
+    ("crevettes"),
+    ("moules"),
+    ("anchois"),
+    ("basilic"),
+    ("roquette"),
+    ("noix"),
+    ("pistache"),
+    ("ricotta"),
+    ("aubergine"),
+    ("courgette"),
+    ("épinards"),
+    ("artichaut");
 
+-- Recette Reine (id=1) : tomate, jambon, fromage, pate
 INSERT INTO Recette (id_pizza, id_ingredient) 
 VALUES 
     (1, 1), 
     (1, 2), 
     (1, 3), 
-    (1, 5); 
+    (1, 5),
+-- Recette Quatre fromages (id=2) : pate, mozzarella, gorgonzola, emmental, chèvre
+    (2, 5),
+    (2, 9),
+    (2, 10),
+    (2, 11),
+    (2, 12),
+-- Recette Cannibale (id=3) : pate, tomate, merguez, poivron, oignon, fromage
+    (3, 5),
+    (3, 1),
+    (3, 13),
+    (3, 7),
+    (3, 8),
+    (3, 3),
+-- Recette Pistachio (id=4) : pate, crème fraîche, pistache, mozzarella, roquette
+    (4, 5),
+    (4, 16),
+    (4, 25),
+    (4, 9),
+    (4, 23),
+-- Recette Margherita (id=5) : pate, tomate, mozzarella, basilic
+    (5, 5),
+    (5, 1),
+    (5, 9),
+    (5, 22),
+-- Recette Végétarienne (id=6) : pate, tomate, poivron, champignon, oignon, courgette, aubergine
+    (6, 5),
+    (6, 1),
+    (6, 7),
+    (6, 6),
+    (6, 8),
+    (6, 28),
+    (6, 27),
+-- Recette Orientale (id=7) : pate, tomate, merguez, harissa, poivron, oignon, olive
+    (7, 5),
+    (7, 1),
+    (7, 13),
+    (7, 14),
+    (7, 7),
+    (7, 8),
+    (7, 4),
+-- Recette Montagnarde (id=8) : pate, crème fraîche, lardons, reblochon, oignon, champignon
+    (8, 5),
+    (8, 16),
+    (8, 17),
+    (8, 18),
+    (8, 8),
+    (8, 6),
+-- Recette Fruits de mer (id=9) : pate, tomate, crevettes, moules, anchois, olive, mozzarella
+    (9, 5),
+    (9, 1),
+    (9, 19),
+    (9, 20),
+    (9, 21),
+    (9, 4),
+    (9, 9),
+-- Recette Calzone (id=10) : pate, tomate, jambon, fromage, champignon, ricotta
+    (10, 5),
+    (10, 1),
+    (10, 2),
+    (10, 3),
+    (10, 6),
+    (10, 26);
 
 INSERT INTO Vente (
     date_vente, heure_commande, heure_livraison, 
     taille, offerte_fidelite, offerte_retard, 
     id_client, id_livreur, id_pizza, id_vehicule
 ) 
-VALUES (
-    '2026-04-16', '19:00:00', '19:25:00', 
-    'humaine', FALSE, FALSE, 
-    1, 1, 1, 1
-);
+VALUES 
+    ('2026-04-16', '19:00:00', '19:25:00', 'humaine', FALSE, FALSE, 1, 1, 1, 1),
+    ('2026-04-16', '19:10:00', '19:40:00', 'humaine', FALSE, FALSE, 2, 2, 3, 2),
+    ('2026-04-16', '20:00:00', '20:28:00', 'XXL',     FALSE, FALSE, 3, 1, 2, 1),
+    ('2026-04-17', '12:05:00', '12:35:00', 'humaine', FALSE, FALSE, 4, 3, 5, 3),
+    ('2026-04-17', '12:30:00', '13:10:00', 'XXL',     FALSE, TRUE,  5, 4, 4, 2),
+    ('2026-04-17', '18:45:00', '19:15:00', 'humaine', TRUE,  FALSE, 6, 2, 1, 1),
+    ('2026-04-17', '19:20:00', '19:50:00', 'humaine', FALSE, FALSE, 7, 1, 6, 3),
+    ('2026-04-18', '11:50:00', '12:20:00', 'humaine', FALSE, FALSE, 8, 3, 7, 4),
+    ('2026-04-18', '12:00:00', '12:25:00', 'XXL',     FALSE, FALSE, 9, 2, 8, 2),
+    ('2026-04-18', '19:30:00', '20:05:00', 'humaine', FALSE, FALSE, 10, 4, 9, 1),
+    ('2026-04-18', '20:00:00', '20:45:00', 'XXL',     FALSE, TRUE,  11, 1, 10, 2),
+    ('2026-04-19', '12:15:00', '12:45:00', 'humaine', TRUE,  FALSE, 1, 2, 3, 3),
+    ('2026-04-19', '13:00:00', '13:30:00', 'humaine', FALSE, FALSE, 3, 3, 5, 4),
+    ('2026-04-19', '19:00:00', '19:22:00', 'humaine', FALSE, FALSE, 5, 1, 2, 1),
+    ('2026-04-19', '19:45:00', '20:15:00', 'XXL',     FALSE, FALSE, 12, 4, 6, 2),
+    ('2026-04-20', '11:30:00', '12:00:00', 'humaine', FALSE, FALSE, 13, 2, 1, 3),
+    ('2026-04-20', '12:10:00', '12:50:00', 'XXL',     TRUE,  FALSE, 14, 3, 4, 2),
+    ('2026-04-20', '18:55:00', '19:30:00', 'humaine', FALSE, FALSE, 15, 1, 7, 1),
+    ('2026-04-20', '19:30:00', '20:00:00', 'humaine', FALSE, FALSE, 16, 4, 8, 4),
+    ('2026-04-20', '20:10:00', '20:35:00', 'humaine', FALSE, FALSE, 17, 2, 10, 3),
+    ('2026-04-21', '12:00:00', '12:28:00', 'humaine', FALSE, FALSE, 18, 1, 5, 1),
+    ('2026-04-21', '12:30:00', '13:15:00', 'XXL',     FALSE, TRUE,  19, 3, 9, 2),
+    ('2026-04-21', '19:10:00', '19:40:00', 'humaine', TRUE,  FALSE, 20, 2, 3, 3),
+    ('2026-04-21', '19:50:00', '20:20:00', 'humaine', FALSE, FALSE, 2, 4, 6, 4),
+    ('2026-04-22', '11:45:00', '12:10:00', 'humaine', FALSE, FALSE, 4, 1, 1, 1),
+    ('2026-04-22', '12:20:00', '12:55:00', 'XXL',     FALSE, FALSE, 6, 3, 2, 2),
+    ('2026-04-22', '19:00:00', '19:30:00', 'humaine', FALSE, FALSE, 8, 2, 7, 3),
+    ('2026-04-22', '19:35:00', '20:10:00', 'XXL',     FALSE, TRUE,  10, 4, 4, 2),
+    ('2026-04-23', '12:05:00', '12:35:00', 'humaine', TRUE,  FALSE, 7, 1, 8, 1),
+    ('2026-04-23', '19:15:00', '19:45:00', 'humaine', FALSE, FALSE, 11, 3, 5, 4),
+    ('2026-04-23', '19:50:00', '20:25:00', 'XXL',     FALSE, FALSE, 13, 2, 10, 3),
+    ('2026-04-24', '11:30:00', '12:00:00', 'humaine', FALSE, FALSE, 15, 4, 6, 2),
+    ('2026-04-24', '12:10:00', '12:45:00', 'humaine', FALSE, FALSE, 17, 1, 3, 1),
+    ('2026-04-24', '18:50:00', '19:20:00', 'humaine', TRUE,  FALSE, 19, 2, 1, 3),
+    ('2026-04-24', '19:30:00', '20:05:00', 'XXL',     FALSE, FALSE, 1, 3, 9, 2),
+    ('2026-04-25', '12:00:00', '12:30:00', 'humaine', FALSE, FALSE, 3, 4, 7, 4),
+    ('2026-04-25', '12:40:00', '13:20:00', 'XXL',     FALSE, TRUE,  5, 1, 4, 1),
+    ('2026-04-25', '19:00:00', '19:28:00', 'humaine', FALSE, FALSE, 9, 2, 2, 3),
+    ('2026-04-25', '19:45:00', '20:15:00', 'humaine', FALSE, FALSE, 14, 3, 5, 2),
+    ('2026-04-26', '12:15:00', '12:40:00', 'humaine', TRUE,  FALSE, 16, 1, 8, 1),
+    ('2026-04-26', '19:10:00', '19:40:00', 'humaine', FALSE, FALSE, 18, 4, 6, 4),
+    ('2026-04-26', '19:55:00', '20:30:00', 'XXL',     FALSE, FALSE, 20, 2, 10, 2),
+    ('2026-04-27', '11:45:00', '12:15:00', 'humaine', FALSE, FALSE, 2, 3, 3, 3),
+    ('2026-04-27', '12:30:00', '13:05:00', 'XXL',     FALSE, TRUE,  12, 1, 9, 1),
+    ('2026-04-27', '19:20:00', '19:50:00', 'humaine', FALSE, FALSE, 6, 4, 1, 2),
+    ('2026-04-28', '12:00:00', '12:25:00', 'humaine', TRUE,  FALSE, 8, 2, 7, 3),
+    ('2026-04-28', '19:05:00', '19:35:00', 'humaine', FALSE, FALSE, 10, 1, 4, 1),
+    ('2026-04-28', '19:45:00', '20:20:00', 'XXL',     FALSE, FALSE, 4, 3, 2, 2),
+    ('2026-04-29', '12:10:00', '12:45:00', 'humaine', FALSE, FALSE, 11, 4, 6, 4),
+    ('2026-04-29', '19:00:00', '19:30:00', 'humaine', FALSE, FALSE, 13, 2, 5, 3),
+    ('2026-04-29', '19:40:00', '20:15:00', 'XXL',     FALSE, TRUE,  7, 1, 8, 1),
+    ('2026-04-30', '12:00:00', '12:30:00', 'humaine', TRUE,  FALSE, 15, 3, 3, 2),
+    ('2026-04-30', '19:10:00', '19:35:00', 'humaine', FALSE, FALSE, 17, 2, 10, 3),
+    ('2026-04-30', '20:00:00', '20:40:00', 'XXL',     FALSE, TRUE,  19, 4, 9, 4),
+    ('2026-05-01', '12:20:00', '12:50:00', 'humaine', FALSE, FALSE, 1, 1, 1, 1),
+    ('2026-05-01', '19:00:00', '19:28:00', 'humaine', FALSE, FALSE, 3, 2, 5, 3),
+    ('2026-05-02', '11:55:00', '12:25:00', 'XXL',     TRUE,  FALSE, 5, 3, 4, 2),
+    ('2026-05-02', '19:30:00', '20:00:00', 'humaine', FALSE, FALSE, 9, 4, 7, 4),
+    ('2026-05-03', '12:05:00', '12:35:00', 'humaine', FALSE, FALSE, 2, 1, 6, 1),
+    ('2026-05-03', '19:15:00', '19:50:00', 'XXL',     FALSE, FALSE, 16, 2, 2, 2);
